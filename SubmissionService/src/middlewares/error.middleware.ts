@@ -5,6 +5,11 @@ export const appErrorHandler = (err: AppError, req: Request, res: Response, next
 
     console.log(err);
 
+    if (!Number.isInteger(err.statusCode) || err.statusCode < 400 || err.statusCode > 599) {
+        next(err);
+        return;
+    }
+
     res.status(err.statusCode).json({
         success: false,
         message: err.message

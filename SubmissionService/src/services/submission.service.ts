@@ -6,9 +6,9 @@ import { ISubmissionRepository } from "../repositories/submission.repository";
 import { BadRequestError, NotFoundError } from "../utils/errors/app.error";
 
 export interface ISubmissionService {
-    createSubmissiono(submissionData: Partial<ISubmission>): Promise<ISubmission>;
+    createSubmission(submissionData: Partial<ISubmission>): Promise<ISubmission>;
     getSubmissionById(id: string): Promise<ISubmission | null>;
-    getSubmissionByProblemId(problemId: string): Promise<ISubmission[]>;
+    getSubmissionsByProblemId(problemId: string): Promise<ISubmission[]>;
     deleteSubmissionById(id: string): Promise<boolean>;
     updateSubmissionStatus(id: string, status: SubmissionStatus): Promise<ISubmission | null>;
 }
@@ -21,7 +21,7 @@ export class SubmissionService implements ISubmissionService{
         this.submissionRepository=submissionRepository;
     }
 
-    async createSubmissiono(submissionData: Partial<ISubmission>): Promise<ISubmission> {
+    async createSubmission(submissionData: Partial<ISubmission>): Promise<ISubmission> {
         // check if the problem exists
         if(!submissionData.problemId){
             throw new BadRequestError("Problem ID is required");
@@ -63,7 +63,7 @@ export class SubmissionService implements ISubmissionService{
         return submission;
     }
 
-    async getSubmissionByProblemId(problemId: string): Promise<ISubmission[]> {
+    async getSubmissionsByProblemId(problemId: string): Promise<ISubmission[]> {
         const submission=await this.submissionRepository.findByProblemId(problemId);
         return submission;
     }
