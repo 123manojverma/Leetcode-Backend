@@ -7,7 +7,7 @@ import logger from './config/logger.config';
 import { attachCorrelationIdMiddleware } from './middlewares/correlation.middleware';
 import { startWorkers } from './workers/evaluation.worker';
 import { pullAllImages } from './utils/containers/pullimage.util';
-import { runPythonCode } from './utils/containers/pythonRunner.util';
+import { runCode } from './utils/containers/codeRunner.util';
 const app = express();
 
 app.use(express.json());
@@ -44,10 +44,19 @@ app.listen(serverConfig.PORT, async () => {
 
 async function testPythonCode() {
     const pythonCode=`
-for i in range(10):
+
+import time
+i=0
+while i<1:
+    i+=1
+    time.sleep(1)
     print(i)
     
 print('Bye')`;
 
-    runPythonCode(pythonCode);
+    runCode({
+        code:pythonCode,
+        language:"python",
+        timeout:3000
+    });
 }

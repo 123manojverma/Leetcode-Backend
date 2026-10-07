@@ -1,16 +1,28 @@
 import { PYTHON_IMAGE } from "../constanats";
+import { commands } from "./commands.util";
 import { createNewDockerContainer } from "./createContainer.util";
 
-export async function runPythonCode(code:string) {
+export interface RunCodeOptions{
+    code:string,
+    language:"python"|"cpp",
+    timeout:number
+}
+
+export async function runCode(options:RunCodeOptions) {
     // 1. Take the python code and dump in a file and run the python file in the container
 
-    const runCommand = `echo "${code}" > code.py && python3 code.py`;
+    const {code,language,timeout}=options;
 
     const container = await createNewDockerContainer({
         imageName: PYTHON_IMAGE,
-        cmdExecutable: ['/bin/sh', '-c', runCommand],
+        cmdExecutable: commands[language](code),
         memoryLimit: 1024 * 1024 * 1024 // 1GB
     })
+
+    const timeLimitExceedTimeout=setTimeout(()=>{
+        console.log("Time limit exceeded");
+        container?.kill();
+    },timeout);
 
     console.log("Container created successfully", container?.id);
 
@@ -28,4 +40,13 @@ export async function runPythonCode(code:string) {
     console.log("Container logs", logs?.toString());
 
     await container?.remove();
+    
+    clearTimeout(timeLimitExceedTimeout);
+
+    if(status.StatusCode==0){
+        // success
+        console.log("Container exited successfully");
+    }else{
+        console.log("Container exited with error");
+    }
 }
