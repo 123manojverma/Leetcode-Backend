@@ -8,6 +8,7 @@ import { attachCorrelationIdMiddleware } from './middlewares/correlation.middlew
 import { startWorkers } from './workers/evaluation.worker';
 import { pullAllImages } from './utils/containers/pullimage.util';
 import { runCode } from './utils/containers/codeRunner.util';
+import { CPP_IMAGE } from './utils/constanats';
 const app = express();
 
 app.use(express.json());
@@ -39,24 +40,42 @@ app.listen(serverConfig.PORT, async () => {
     await pullAllImages();
     console.log("Image pull successfully");
 
-    await testPythonCode();
+    await testCppCode();
 });
 
-async function testPythonCode() {
-    const pythonCode=`
+// async function testPythonCode() {
+//     const pythonCode=`
 
-import time
-i=0
-while i<1:
-    i+=1
-    time.sleep(1)
-    print(i)
+// import time
+// i=0
+// while i<1:
+//     i+=1
+//     time.sleep(1)
+//     print(i)
     
-print('Bye')`;
+// print('Bye')`;
 
+//     runCode({
+//         code:pythonCode,
+//         language:"python",
+//         timeout:3000,
+//         imageName:PYTHON_IMAGE
+//     });
+// }
+
+async function testCppCode() {
+    const cppCode=`
+#include<iostream>
+using namespace std;
+
+int main(){
+    cout<<"Hello World";
+}
+`;
     runCode({
-        code:pythonCode,
-        language:"python",
-        timeout:3000
+        code:cppCode,
+        language:"cpp",
+        timeout:3000,
+        imageName:CPP_IMAGE
     });
 }
