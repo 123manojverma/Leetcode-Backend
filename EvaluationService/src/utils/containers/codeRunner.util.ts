@@ -1,21 +1,21 @@
 import { commands } from "./commands.util";
 import { createNewDockerContainer } from "./createContainer.util";
-
 export interface RunCodeOptions{
     code:string,
     language:"python"|"cpp",
     timeout:number,
-    imageName:string
+    imageName:string,
+    input:string
 }
 
 export async function runCode(options:RunCodeOptions) {
     // 1. Take the python code and dump in a file and run the python file in the container
 
-    const {code,language,timeout,imageName}=options;
+    const {code,language,timeout,imageName,input}=options;
 
     const container = await createNewDockerContainer({
         imageName: imageName,
-        cmdExecutable: commands[language](code),
+        cmdExecutable: commands[language](code,input),
         memoryLimit: 1024 * 1024 * 1024 // 1GB
     })
 
@@ -37,7 +37,9 @@ export async function runCode(options:RunCodeOptions) {
         stderr: true
     })
 
-    console.log("Container logs", logs?.toString());
+    const containerLogs=processLogs(logs);
+
+    console.log("Container logs",containerLogs);
 
     await container?.remove();
     
@@ -49,4 +51,12 @@ export async function runCode(options:RunCodeOptions) {
     }else{
         console.log("Container exited with error");
     }
+}
+
+function processLogs(logs:Buffer | undefined){
+    return logs?.toString('utf-8')
+    .replace(/\x00/g,'') // Remove null bytes
+    .replace(/\x1b\[[0-9;]*m/g,'') // Remove ANSI color codes
+    .replace(/[\x00-\x09\x0B-\x1F\x7F-\x9F]/g,'') // Remove control characters except \n (0x0A)
+    .trim();
 }

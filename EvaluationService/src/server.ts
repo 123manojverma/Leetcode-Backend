@@ -69,13 +69,18 @@ async function testCppCode() {
 using namespace std;
 
 int main(){
-    cout<<"Hello World";
+    int n;
+    cin>>n;
+    for(int i=0;i<n;i++){
+        cout<<i<<endl;
+    }
 }
 `;
     runCode({
         code:cppCode,
         language:"cpp",
         timeout:3000,
-        imageName:CPP_IMAGE
+        imageName:CPP_IMAGE,
+        input:"6"
     });
 }
