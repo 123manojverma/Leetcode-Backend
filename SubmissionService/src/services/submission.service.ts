@@ -1,6 +1,6 @@
 import { getProblemById } from "../apis/problem.api";
 import logger from "../config/logger.config";
-import { ISubmission, SubmissionStatus } from "../models/submission.model";
+import { ISubmission, ISubmissionData, SubmissionStatus } from "../models/submission.model";
 import { addSubmissionJob } from "../producers/submission.producer";
 import { ISubmissionRepository } from "../repositories/submission.repository";
 import { BadRequestError, NotFoundError } from "../utils/errors/app.error";
@@ -10,7 +10,7 @@ export interface ISubmissionService {
     getSubmissionById(id: string): Promise<ISubmission | null>;
     getSubmissionsByProblemId(problemId: string): Promise<ISubmission[]>;
     deleteSubmissionById(id: string): Promise<boolean>;
-    updateSubmissionStatus(id: string, status: SubmissionStatus): Promise<ISubmission | null>;
+    updateSubmissionStatus(id: string, status: SubmissionStatus,submissionData:ISubmissionData): Promise<ISubmission | null>;
 }
 
 export class SubmissionService implements ISubmissionService{
@@ -72,8 +72,8 @@ export class SubmissionService implements ISubmissionService{
         return await this.submissionRepository.deleteById(id);
     }
 
-    async updateSubmissionStatus(id: string, status: SubmissionStatus): Promise<ISubmission | null> {
-        const submission=await this.submissionRepository.updateStatus(id,status);
+    async updateSubmissionStatus(id: string, status: SubmissionStatus,submissionData:ISubmissionData): Promise<ISubmission | null> {
+        const submission=await this.submissionRepository.updateStatus(id,status,submissionData);
         return submission;
     }
     
